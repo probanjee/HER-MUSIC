@@ -1,0 +1,1329 @@
+# HER MUSIC — FINAL MILE DEBUGGING, UX POLISH & TOGETHER LISTENING HARDENING
+
+You are acting as a **senior full-stack engineer, mobile UX engineer, audio synchronization engineer, and QA engineer**.
+
+You are working on an existing application called **Her Music**.
+
+The application is already designed and implemented. Your task is **NOT to redesign it from scratch**.
+
+Your primary objective is:
+
+> Fix the functional/UX problems, improve the music-player behavior to feel as polished as Spotify, and harden the Together Listening synchronization system — WITHOUT changing Her Music's existing visual identity.
+
+---
+
+# 1. PRODUCT IDENTITY — DO NOT VIOLATE THIS
+
+Her Music is a private, atmospheric music-sharing application designed around the idea of two people sharing music together.
+
+The visual identity is:
+
+* Liquid Glass
+* translucent surfaces
+* reflective/frosted panels
+* atmospheric backgrounds
+* navy/dark environment
+* romantic/cinematic feeling
+* weather-aware environment
+* time-of-day lighting
+* rain/snow/fog effects
+* glass droplets/refraction
+* subtle motion
+* premium immersive experience
+
+The application must continue to feel like:
+
+> "A private atmospheric music world for two people."
+
+Do NOT replace this with Spotify's UI.
+
+Do NOT introduce Spotify's green branding.
+
+Do NOT copy Spotify's exact layouts, colors, typography, or components.
+
+Instead, borrow only Spotify-level UX principles:
+
+* persistent mini-player
+* reliable global playback
+* clear player hierarchy
+* predictable navigation
+* smooth transitions
+* strong artwork hierarchy
+* responsive touch controls
+* persistent playback state
+* queue management
+* reliable progress synchronization
+
+The final result should look like **Her Music**, but behave with the polish and consistency expected from a mature music application.
+
+---
+
+# 2. IMPORTANT: INSPECT BEFORE MODIFYING
+
+Before changing code:
+
+1. Inspect the complete repository.
+2. Identify the frontend framework and architecture.
+3. Identify the audio implementation.
+4. Identify routing/navigation.
+5. Identify global state management.
+6. Identify Supabase integration.
+7. Identify Together Listening implementation.
+8. Identify authentication flow.
+9. Identify database schema/migrations.
+10. Identify the Liquid Glass / Canvas / WebGL rendering system.
+11. Identify responsive/mobile behavior.
+12. Identify all existing player components.
+
+Do NOT immediately rewrite components.
+
+First create an internal understanding of:
+
+```text
+UI
+ ↓
+Navigation
+ ↓
+Player State
+ ↓
+Audio Engine
+ ↓
+Together Sync
+ ↓
+Supabase
+```
+
+Preserve working functionality wherever possible.
+
+Prefer targeted fixes and architectural refactoring over unnecessary rewrites.
+
+---
+
+# 3. VIDEO-OBSERVED PROBLEMS TO FIX
+
+Use the supplied Android recording as a behavioral reference.
+
+The major problems to address are:
+
+## A. Global player state
+
+The mini-player and full-screen player must represent the SAME playback state.
+
+There must be exactly one authoritative local player state.
+
+The state should contain at minimum:
+
+```text
+currentTrack
+isPlaying
+currentPosition
+duration
+volume
+queue
+currentQueueIndex
+shuffle
+repeatMode
+```
+
+Recommended architecture:
+
+```text
+                 Player Store
+                     |
+          +----------+----------+
+          |                     |
+      MiniPlayer            FullPlayer
+          |                     |
+          +----------+----------+
+                     |
+                Audio Engine
+```
+
+Do NOT allow the mini-player and full player to maintain independent playback state.
+
+If the user presses play in one location, every player representation must immediately reflect it.
+
+---
+
+# 4. PERSISTENT MINI-PLAYER
+
+The mini-player must behave like a real music application's persistent player.
+
+Requirements:
+
+* remains visible while a track is active
+* stays above bottom navigation
+* full-width mobile layout
+* approximately 48–64px visual height
+* album artwork
+* track title
+* artist name
+* play/pause button
+* entire mini-player opens the full player
+* playback must continue when navigating between screens
+* progress should remain synchronized with the audio engine
+
+Keep the existing Liquid Glass treatment.
+
+Use:
+
+```text
+frosted glass
+subtle border
+existing Her Music accent
+existing shadows
+existing atmospheric background
+```
+
+Do not turn it into a generic Spotify clone.
+
+---
+
+# 5. FULL PLAYER
+
+Improve the current Now Playing screen without changing its visual language.
+
+Required hierarchy:
+
+```text
+Back
+        ↓
+Large album artwork
+        ↓
+Song title
+Artist
+        ↓
+Interactive progress bar
+        ↓
+Current time        Duration
+        ↓
+Secondary controls
+        ↓
+Primary playback controls
+```
+
+The play/pause control should have the strongest visual hierarchy.
+
+Controls should include, where supported:
+
+```text
+shuffle
+previous
+play/pause
+next
+repeat
+favorite
+queue
+```
+
+Do not add fake functionality.
+
+Only display controls that are actually implemented.
+
+---
+
+# 6. AUDIO ENGINE
+
+Create a clean abstraction around audio playback.
+
+For example:
+
+```text
+AudioService
+    play()
+    pause()
+    seek()
+    next()
+    previous()
+    setVolume()
+    getCurrentTime()
+    getDuration()
+```
+
+The UI should NOT directly manipulate the HTMLAudioElement/native player from multiple unrelated components.
+
+Instead:
+
+```text
+UI
+ ↓
+Player Store
+ ↓
+Audio Service
+ ↓
+Audio Element
+```
+
+This prevents:
+
+* duplicate audio instances
+* race conditions
+* inconsistent play/pause state
+* incorrect progress
+* player desynchronization
+
+Make sure only one active audio source exists at a time.
+
+---
+
+# 7. PROGRESS BAR
+
+The progress bar must be functional, not decorative.
+
+Support:
+
+* tap-to-seek
+* drag-to-seek
+* accurate progress updates
+* duration display
+* current position display
+* smooth UI updates
+
+Example:
+
+```text
+0:00 ━━━━━━━━━━━━━━━ 3:42
+```
+
+Do not cause excessive React re-renders.
+
+Use an appropriate update frequency for visual progress while keeping the underlying audio time accurate.
+
+---
+
+# 8. MOBILE / ANDROID BEHAVIOR
+
+The application must feel like a mobile application rather than a desktop webpage squeezed into a phone.
+
+Fix:
+
+* viewport sizing
+* scrolling
+* safe-area handling
+* bottom navigation positioning
+* mini-player positioning
+* touch targets
+* overflow
+* keyboard behavior
+* drawer behavior
+
+Use safe-area support where appropriate:
+
+```css
+padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+```
+
+Interactive controls should generally provide approximately:
+
+```text
+44px × 44px
+```
+
+minimum touch targets.
+
+Do NOT make icons unnecessarily huge.
+
+Increase the clickable area instead.
+
+---
+
+# 9. NAVIGATION
+
+Navigation must feel like a single application.
+
+Avoid unnecessary full-page reloads.
+
+The desired behavior is:
+
+```text
+Home
+ ↓
+Now Playing
+ ↓
+Back
+ ↓
+Home
+```
+
+Playback must continue during navigation.
+
+The browser history should behave predictably.
+
+Do not create duplicate navigation states.
+
+If React Router or another router already exists, use the existing routing system rather than introducing a second navigation architecture.
+
+---
+
+# 10. BOTTOM NAVIGATION
+
+Preserve the existing design.
+
+Improve only behavior and clarity.
+
+The active destination should be obvious.
+
+For example:
+
+```text
+Home
+Search
+Library
+```
+
+or whatever destinations already exist.
+
+Requirements:
+
+* correct active state
+* no stale active state
+* navigation without reload
+* persistent player above it
+* safe-area support
+* proper touch targets
+
+Do not redesign the navigation unnecessarily.
+
+---
+
+# 11. SIDE DRAWER
+
+Keep the existing Liquid Glass drawer.
+
+Improve:
+
+* opening animation
+* closing animation
+* backdrop
+* touch behavior
+* width
+* selected state
+* outside-tap behavior
+* Escape/back behavior
+
+Recommended behavior:
+
+```text
+Tap menu
+    ↓
+Drawer slides in
+    ↓
+Background becomes dimmed
+    ↓
+Tap outside
+    ↓
+Drawer closes
+```
+
+Android back should close the drawer before navigating away from the current page.
+
+Do not make the drawer excessively wide.
+
+---
+
+# 12. HOME SCREEN HIERARCHY
+
+Do NOT remove the existing sections.
+
+Instead improve visual hierarchy.
+
+The home page should feel like:
+
+```text
+Greeting / atmospheric hero
+
+Continue Listening
+    ↓
+large horizontal music cards
+
+Your Playlists
+    ↓
+playlist cards
+
+Recently Played
+    ↓
+compact song rows
+
+Other recommendations
+```
+
+The existing Liquid Glass cards should remain.
+
+Reduce unnecessary visual competition between sections.
+
+Artwork should remain a major visual focus.
+
+---
+
+# 13. SEARCH
+
+The search interface must behave like a real music search experience.
+
+Keep the current Liquid Glass search design.
+
+Behavior:
+
+```text
+Tap Search
+ ↓
+Search screen
+ ↓
+Keyboard
+ ↓
+Enter query
+ ↓
+Search results
+```
+
+Results should be clearly separated where supported:
+
+```text
+Songs
+Artists
+Albums
+Playlists
+```
+
+Do not invent backend functionality.
+
+Use the existing data/API architecture.
+
+Handle:
+
+```text
+loading
+empty results
+errors
+slow response
+```
+
+---
+
+# 14. TOGETHER LISTENING — CRITICAL
+
+Her Music uses a server-authoritative synchronization model.
+
+Two clients should NOT stream audio through the server.
+
+Instead:
+
+```text
+Client A
+    ↓
+loads local audio
+
+Client B
+    ↓
+loads local audio
+```
+
+The synchronization system coordinates playback state.
+
+Required state:
+
+```text
+track_id
+is_playing
+position_seconds
+state_changed_at
+sequence_number
+```
+
+---
+
+# 15. IMPORTANT SYNCHRONIZATION CORRECTION
+
+Do NOT blindly trust each browser's local clock.
+
+Do NOT assume that:
+
+```text
+Date.now()
+```
+
+on Client A and Client B are equivalent.
+
+Do NOT describe a Supabase Broadcast payload as automatically providing a trusted authoritative server timestamp unless the implementation actually obtains that timestamp from a trusted server-side source.
+
+The system should establish a server-time reference.
+
+Possible architecture:
+
+```text
+                Trusted Server Time
+                       |
+              server timestamp
+                       |
+        +--------------+--------------+
+        |                             |
+     Client A                      Client B
+        |                             |
+     clock offset                  clock offset
+        |                             |
+        +--------------+--------------+
+                       |
+                 sync calculation
+```
+
+If the existing architecture uses Supabase Edge Functions, PostgreSQL, or another trusted server-side mechanism, use that existing infrastructure.
+
+Do not introduce an unnecessary new backend if the current infrastructure can provide the authoritative timestamp.
+
+---
+
+# 16. TOGETHER PLAY EVENT
+
+When the host presses PLAY:
+
+The authoritative state should conceptually contain:
+
+```text
+track_id
+position_seconds
+state_changed_at
+is_playing
+sequence_number
+```
+
+The receiving client calculates the expected position using the authoritative timeline.
+
+Conceptually:
+
+```text
+expected_position =
+    position_seconds
+    +
+    elapsed_authoritative_time
+```
+
+For a playing track:
+
+```text
+elapsed =
+    authoritative_now - state_changed_at
+```
+
+Then:
+
+```text
+target_position =
+    position_seconds + elapsed
+```
+
+The guest should seek toward that position.
+
+Do not repeatedly hard-seek every few milliseconds.
+
+---
+
+# 17. DRIFT CORRECTION
+
+Implement controlled drift correction.
+
+Example strategy:
+
+```text
+drift < 100ms
+    → do nothing
+
+100ms–300ms
+    → gentle correction
+
+300ms–1000ms
+    → stronger correction
+
+> 1000ms
+    → explicit seek/resynchronization
+```
+
+Use thresholds appropriate to the actual audio engine after testing.
+
+Avoid constantly fighting the user's player.
+
+The system should feel synchronized rather than visibly jumping.
+
+---
+
+# 18. RACE CONDITIONS
+
+Protect against:
+
+```text
+PLAY
+PAUSE
+SEEK
+NEXT
+PREVIOUS
+```
+
+arriving out of order.
+
+Every synchronization event should have an ordering mechanism such as:
+
+```text
+sequence_number
+```
+
+or an equivalent monotonic event identifier.
+
+Ignore stale events.
+
+Example:
+
+```text
+event 101
+event 102
+event 103
+```
+
+If event 101 arrives after event 103:
+
+```text
+IGNORE 101
+```
+
+Do not allow old network messages to overwrite newer state.
+
+---
+
+# 19. JOINING A ROOM
+
+When a second listener joins:
+
+Do NOT simply start from position 0.
+
+The guest should receive the current authoritative room state.
+
+Example:
+
+```text
+Room state:
+
+track = X
+playing = true
+position = 82.4
+state_changed_at = server_time
+```
+
+Guest calculates:
+
+```text
+current expected position
+```
+
+and begins playback there.
+
+The guest should visually transition into synchronization instead of abruptly jumping around.
+
+---
+
+# 20. PAUSE / SEEK / NEXT / PREVIOUS
+
+All Together events must be synchronized.
+
+Required events:
+
+```text
+PLAY
+PAUSE
+SEEK
+NEXT
+PREVIOUS
+QUEUE_UPDATE
+```
+
+Each event should contain enough state for a new client to reconstruct the correct playback state.
+
+Do not rely solely on event history.
+
+The database should remain capable of representing the current room state.
+
+---
+
+# 21. ROOM STATE
+
+PostgreSQL should remain the persistence layer.
+
+At minimum, verify that the room model can represent:
+
+```text
+room_id
+host_user_id
+guest_user_id
+current_track_id
+is_playing
+position_seconds
+state_changed_at
+queue
+updated_at
+```
+
+Adapt this to the existing schema rather than creating duplicate tables unnecessarily.
+
+---
+
+# 22. SUPABASE SECURITY
+
+Verify:
+
+* Supabase Auth
+* Row Level Security
+* room membership
+* invitation tokens
+* queue access
+* playback-state access
+
+A user who is not a member of a room must NOT be able to read or modify that room's private state.
+
+Test:
+
+```text
+User A owns room
+User B invited
+User C not invited
+```
+
+Expected:
+
+```text
+A → allowed
+B → allowed
+C → denied
+```
+
+Do not weaken RLS merely to make the frontend work.
+
+---
+
+# 23. AUTHENTICATION / EMAIL DELIVERY
+
+The current final-mile problem is Supabase email delivery.
+
+Verify:
+
+```text
+Site URL
+Redirect URLs
+Email confirmation
+SMTP configuration
+```
+
+The production domain should be used instead of localhost.
+
+The application's deployed URL should be configured consistently across:
+
+```text
+Supabase Site URL
+Supabase Redirect URLs
+Authentication callbacks
+Frontend environment variables
+```
+
+Do not hardcode localhost URLs into production.
+
+If custom SMTP is already configured, verify the actual confirmation flow rather than assuming it works.
+
+---
+
+# 24. IMPORTANT DOMAIN DETAIL
+
+The current production application may use:
+
+```text
+https://probanjee.vercel.app/
+```
+
+If this is being used as the Her Music production domain, configure it consistently.
+
+However, if a dedicated Her Music domain is later introduced, switch the configuration to that domain.
+
+Do not mix:
+
+```text
+localhost
+Vercel domain
+old deployment URL
+new deployment URL
+```
+
+inside the same authentication flow.
+
+---
+
+# 25. WEATHER / ATMOSPHERIC ENGINE
+
+Do NOT remove or simplify the atmospheric engine just to improve performance.
+
+Preserve:
+
+* Open-Meteo integration
+* rain
+* snow
+* fog
+* droplets
+* refraction
+* WebGL/Canvas effects
+* time-of-day transitions
+
+However, optimize it where necessary.
+
+The atmospheric engine must not:
+
+* block audio playback
+* cause severe frame drops
+* block navigation
+* cause memory leaks
+* continuously recreate expensive objects
+* interfere with touch interaction
+
+Pause/reduce expensive rendering when appropriate if the app is backgrounded.
+
+---
+
+# 26. PERFORMANCE
+
+Audit:
+
+```text
+React re-renders
+Canvas/WebGL rendering
+audio event listeners
+Supabase subscriptions
+Broadcast listeners
+Presence listeners
+timers
+requestAnimationFrame
+```
+
+Make sure subscriptions are cleaned up.
+
+Avoid:
+
+```text
+duplicate Supabase channels
+duplicate audio listeners
+duplicate animation loops
+duplicate timers
+```
+
+when navigating between screens.
+
+---
+
+# 27. MOBILE RESPONSIVENESS
+
+Test at minimum:
+
+```text
+360 × 800
+390 × 844
+412 × 915
+```
+
+The UI should remain usable without changing the design system.
+
+Check:
+
+* player
+* mini-player
+* bottom navigation
+* drawer
+* search
+* playlist cards
+* artwork
+* text overflow
+* buttons
+* safe areas
+* keyboard
+* scrolling
+
+---
+
+# 28. ERROR / EMPTY / LOADING STATES
+
+Every important async operation needs a state.
+
+Examples:
+
+```text
+Loading music...
+No songs found
+Unable to load playlist
+Connection lost
+Reconnecting...
+Together room unavailable
+Authentication required
+Email confirmation required
+```
+
+These states must use the existing Liquid Glass visual language.
+
+Do not use generic browser alerts unless absolutely necessary.
+
+---
+
+# 29. OFFLINE / CONNECTION LOSS
+
+Together Listening should handle temporary network loss gracefully.
+
+When connection drops:
+
+```text
+Connected
+    ↓
+Disconnected
+    ↓
+Reconnecting
+    ↓
+Connected
+```
+
+Do not immediately destroy local playback if possible.
+
+On reconnection:
+
+```text
+obtain latest authoritative room state
+        ↓
+calculate expected position
+        ↓
+correct drift
+        ↓
+resume synchronized state
+```
+
+---
+
+# 30. ACCESSIBILITY
+
+Without changing the visual style:
+
+* buttons need accessible labels
+* icons need appropriate aria labels
+* keyboard navigation should work
+* focus states should exist
+* contrast must remain readable
+* touch targets should be adequate
+
+Examples:
+
+```text
+aria-label="Play"
+aria-label="Pause"
+aria-label="Next track"
+aria-label="Previous track"
+aria-label="Open queue"
+```
+
+---
+
+# 31. DO NOT MAKE THESE CHANGES
+
+Do NOT:
+
+* redesign Her Music
+* replace Liquid Glass
+* replace the atmospheric background
+* replace the color palette
+* make the application visually identical to Spotify
+* remove weather effects
+* remove Together Listening
+* replace Supabase unnecessarily
+* replace PostgreSQL unnecessarily
+* create a second audio engine
+* create duplicate player state
+* disable RLS
+* hardcode authentication tokens
+* hardcode service-role keys into the frontend
+* remove security checks
+* fake synchronization
+* fake backend functionality
+* add mock data to hide errors
+
+---
+
+# 32. IMPLEMENTATION ORDER
+
+Work in this exact order.
+
+## Phase 1 — Audit
+
+Inspect the entire project.
+
+Identify:
+
+```text
+Current architecture
+Player architecture
+Audio engine
+Navigation
+State management
+Supabase
+Together sync
+Authentication
+Atmospheric engine
+```
+
+Do not modify code yet.
+
+---
+
+## Phase 2 — Player Foundation
+
+Fix:
+
+```text
+Global player state
+Audio service
+Mini-player
+Full player
+Progress
+Play/pause
+Next/previous
+Queue
+```
+
+---
+
+## Phase 3 — Navigation
+
+Fix:
+
+```text
+Routing
+Back behavior
+Drawer
+Bottom navigation
+Mobile viewport
+Safe areas
+```
+
+---
+
+## Phase 4 — Together Listening
+
+Fix:
+
+```text
+server-authoritative state
+clock synchronization
+play/pause
+seek
+next/previous
+sequence ordering
+drift correction
+room join
+reconnection
+```
+
+---
+
+## Phase 5 — Authentication
+
+Verify:
+
+```text
+Supabase Site URL
+Redirect URLs
+Email confirmation
+SMTP
+production domain
+```
+
+---
+
+## Phase 6 — Performance
+
+Audit:
+
+```text
+WebGL
+Canvas
+React
+Supabase subscriptions
+audio listeners
+memory leaks
+```
+
+---
+
+## Phase 7 — QA
+
+Perform end-to-end testing.
+
+---
+
+# 33. REQUIRED TEST MATRIX
+
+Test single-user playback:
+
+```text
+Open Home
+Play song
+Navigate to Search
+Navigate to Library
+Open Now Playing
+Return Home
+Pause
+Resume
+Seek
+Next
+Previous
+```
+
+Expected:
+
+> Playback never unexpectedly resets or duplicates.
+
+---
+
+Test Together Listening:
+
+```text
+Device A → Host
+Device B → Guest
+```
+
+Test:
+
+```text
+Host joins room
+Guest joins room
+Host plays
+Host pauses
+Host seeks
+Host skips
+Guest pauses if permitted
+Guest reconnects
+Host reconnects
+Network temporarily disconnects
+New guest joins
+```
+
+Verify that both clients converge to the same track and approximately the same playback position.
+
+---
+
+# 34. PERFORMANCE ACCEPTANCE CRITERIA
+
+Target:
+
+```text
+Smooth scrolling
+No obvious frame drops during normal interaction
+No duplicated audio
+No duplicated Supabase subscriptions
+No runaway timers
+No memory leaks
+Responsive player controls
+Fast navigation
+```
+
+The atmospheric effects should remain visually rich while yielding enough resources for reliable audio playback and interaction.
+
+---
+
+# 35. FINAL QA CHECKLIST
+
+Before declaring the task complete, verify:
+
+### UI
+
+[ ] Liquid Glass preserved
+[ ] Existing color palette preserved
+[ ] Existing atmospheric effects preserved
+[ ] Existing visual identity preserved
+[ ] Mobile layout fixed
+[ ] Touch targets fixed
+
+### Player
+
+[ ] One global player state
+[ ] One audio engine
+[ ] Mini-player synchronized
+[ ] Full player synchronized
+[ ] Progress works
+[ ] Seeking works
+[ ] Next/previous works
+[ ] Queue works
+[ ] Playback survives navigation
+
+### Navigation
+
+[ ] Bottom navigation works
+[ ] Drawer works
+[ ] Back behavior works
+[ ] No unnecessary page reloads
+[ ] Safe-area handling works
+
+### Together
+
+[ ] Server-authoritative timing verified
+[ ] Play synchronized
+[ ] Pause synchronized
+[ ] Seek synchronized
+[ ] Next synchronized
+[ ] Previous synchronized
+[ ] Stale events rejected
+[ ] Drift correction works
+[ ] Room joining works
+[ ] Reconnection works
+
+### Security
+
+[ ] RLS verified
+[ ] Unauthorized room access blocked
+[ ] Invitation security verified
+[ ] No service-role key exposed
+[ ] No sensitive credentials exposed
+
+### Auth
+
+[ ] Production Site URL configured
+[ ] Redirect URLs configured
+[ ] Email confirmation works
+[ ] SMTP delivery works
+[ ] No localhost production callback remains
+
+### Performance
+
+[ ] Canvas/WebGL optimized
+[ ] Supabase listeners cleaned up
+[ ] Audio listeners cleaned up
+[ ] Animation loops cleaned up
+[ ] No obvious memory leaks
+
+---
+
+# 36. FINAL DELIVERABLE
+
+After implementation, provide a concise engineering report containing:
+
+1. Bugs discovered
+2. Root cause of each bug
+3. Files/components changed
+4. Architecture changes
+5. Together Listening synchronization changes
+6. Authentication fixes
+7. Performance fixes
+8. Security findings
+9. Tests executed
+10. Remaining issues, if any
+
+For every bug use:
+
+```text
+BUG
+Root cause
+Fix
+Verification
+```
+
+Do not claim something is fixed unless you actually tested it.
+
+The final product should preserve the identity of:
+
+> HER MUSIC — a private, atmospheric Liquid Glass music world for two people
+
+while achieving the reliability, interaction quality, and playback consistency expected from a mature production music application.

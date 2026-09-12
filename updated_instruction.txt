@@ -1,0 +1,150 @@
+Read all uploaded `update_together_*` files completely before making any changes.
+
+Treat them as the authoritative specification for implementing the new **♡ Together Listening** feature in the existing Her Music application.
+
+First inspect the current Her Music codebase and existing Supabase/database structure. Do NOT assume table names, authentication structure, or song schema. Reuse the existing architecture wherever possible.
+
+Implement the feature end-to-end:
+
+1. Together Listening PRD
+2. PostgreSQL/Supabase database schema
+3. WebSocket real-time synchronization architecture
+4. Responsive UI/UX flow
+
+CORE EXPERIENCE:
+
+You create a private listening room
+→ Her Music generates a unique room code
+→ Her Music generates a secure invitation link
+→ user shares the invitation
+→ second person joins
+→ both users see each other's presence
+→ both listen to the same song synchronized in real time.
+
+REQUIREMENTS:
+
+- Maximum 2 participants per room.
+- Unique, secure room code.
+- Secure invitation token/link.
+- Join through code OR invitation link.
+- Host/guest roles.
+- Real-time presence.
+- Synchronized play/pause.
+- Synchronized seek.
+- Synchronized song changes.
+- Synchronized queue.
+- Reconnection and state recovery.
+- Server-authoritative room state.
+- Do NOT stream audio through WebSockets.
+- Each browser plays the authorized audio source locally.
+- Use timestamps/state versions rather than broadcasting playback position every frame.
+- Prevent stale WebSocket events.
+- Enforce permissions server-side.
+- Expire inactive rooms.
+
+DATABASE:
+
+Use the existing Supabase PostgreSQL database.
+
+Before creating anything:
+
+1. Inspect existing tables.
+2. Inspect existing Auth/profile relationships.
+3. Inspect existing songs/tracks schema.
+4. Reuse existing tables where appropriate.
+5. Create only the required Together Listening tables.
+6. Add proper indexes, foreign keys, constraints, and RLS policies.
+7. Do not duplicate existing user/song tables.
+
+REAL-TIME:
+
+Implement the WebSocket/Realtime event architecture specified in the uploaded files.
+
+The client must recover room state after reconnecting.
+
+UI:
+
+Integrate Together Listening into the existing Her Music Liquid Glass design.
+
+Desktop:
+- Sidebar Together entry.
+- Room/player/presence/shared queue layout.
+
+Tablet:
+- Compact navigation.
+- Responsive room layout.
+
+Mobile:
+- Dedicated Together screen.
+- Touch-friendly controls.
+- Persistent mini-player.
+- Full player integration.
+
+Use the existing player components instead of creating a completely separate music player.
+
+Maintain:
+- Her Music branding
+- existing Liquid Glass UI
+- existing responsive system
+- existing music functionality
+- existing weather/environment
+- existing time-of-day system
+
+Do NOT redesign unrelated parts of the application.
+
+SECURITY:
+
+Never trust the client for host privileges.
+
+Validate:
+- authentication
+- room membership
+- participant limit
+- host permissions
+- room status
+- invitation access
+
+Do not expose private room data to unauthorized users.
+
+VALIDATION:
+
+After implementation:
+
+BUILD → RUN → TEST → FIX → RE-TEST.
+
+Test:
+
+✓ Create room
+✓ Generate unique code
+✓ Generate invitation link
+✓ Copy/share invitation
+✓ Join through link
+✓ Join through code
+✓ Two-person limit
+✓ Host/guest roles
+✓ Presence updates
+✓ Play/pause synchronization
+✓ Seek synchronization
+✓ Next/previous synchronization
+✓ Queue synchronization
+✓ Reconnection
+✓ Room expiration
+✓ Leave/end room
+✓ Database constraints
+✓ RLS/security
+✓ Desktop UI
+✓ Tablet UI
+✓ Mobile UI
+✓ Existing music player still works
+
+Do not report completion merely because the project builds.
+
+Actually run and test the complete Together Listening flow.
+
+If the existing database structure differs from the uploaded schema, adapt the implementation to the existing architecture instead of creating duplicate or conflicting tables.
+
+FINAL GOAL:
+
+Make Together Listening feel like a native part of Her Music:
+
+“Even when we're apart, we can listen to the same song together. ♡”
